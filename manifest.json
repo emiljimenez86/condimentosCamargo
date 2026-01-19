@@ -1,0 +1,26 @@
+{
+  "name": "Camargo - Distribuidora de Condimentos",
+  "short_name": "Camargo",
+  "description": "Catálogo de productos y pedidos de condimentos",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FF6B35",
+  "theme_color": "#FF6B35",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "image/logo/LogoCondimentosCamargo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "image/logo/LogoCondimentosCamargo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
+

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Camargo">
+    <title>Camargo - Distribuidora de Condimentos</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="192x192" href="image/logo/LogoCondimentosCamargo.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="image/logo/LogoCondimentosCamargo.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="image/logo/LogoCondimentosCamargo.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="image/logo/LogoCondimentosCamargo.png">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <!-- Botón de Instalación -->
+    <button id="installBtn" class="btn btn-success" style="display: none;">Instalar App</button>
+    
+    <!-- Instrucciones para iOS -->
+    <div id="ios-instructions" class="ios-instructions" style="display: none;">
+        <div class="ios-instructions-content">
+            <h3>📱 Para instalar esta app en iPhone:</h3>
+            <p>1. Toca <strong>Compartir</strong> <span class="share-icon">📤</span></p>
+            <p>2. Selecciona <strong>"Agregar a inicio"</strong></p>
+            <p>3. Toca <strong>"Agregar"</strong>. ¡Y así de fácil te llevas nuestro catálogo!</p>
+            <button onclick="document.getElementById('ios-instructions').style.display='none'" class="close-instructions-btn">Cerrar</button>
+        </div>
+    </div>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <img src="image/logo/LogoCondimentosCamargo.png" alt="Camargo Logo" class="logo">
+            <h1 class="header-title">Distribuidora de Condimentos</h1>
+        </div>
+    </header>
+
+    <!-- Vista de Selección de Categorías -->
+    <section class="categories-view" id="categoriesView">
+        <div class="categories-container-large">
+            <h2 class="categories-title">Selecciona tu categoría y haz tu pedido</h2>
+            <div class="categories-grid">
+                <button class="category-card" data-category="tenderos">
+                    <span class="category-icon-large">🏪</span>
+                    <div class="category-text">
+                        <span class="category-name-large">Tenderos</span>
+                        <span class="category-desc-large">Productos por docena</span>
+                    </div>
+                </button>
+                <button class="category-card" data-category="restaurantes">
+                    <span class="category-icon-large">🍽️</span>
+                    <div class="category-text">
+                        <span class="category-name-large">Restaurantes</span>
+                        <span class="category-desc-large">Productos por libras</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vista de Productos (oculta inicialmente) -->
+    <section class="products-view" id="productsView" style="display: none;">
+        <!-- Botón para volver -->
+        <div class="back-container">
+            <button class="back-btn" id="backBtn">
+                <span>←</span> Volver a categorías
+            </button>
+        </div>
+        
+        <!-- Categoría actual -->
+        <div class="current-category" id="currentCategory">
+            <!-- Se mostrará dinámicamente -->
+        </div>
+
+        <!-- Productos -->
+        <main class="main-content">
+            <div class="products-container" id="productsContainer">
+                <!-- Los productos se cargarán dinámicamente -->
+            </div>
+        </main>
+    </section>
+
+    <!-- Carrito Flotante -->
+    <div class="cart-float" id="cartFloat">
+        <button class="cart-btn" id="cartButton">
+            <span class="cart-icon">🛒</span>
+            <span class="cart-count" id="cartCount">0</span>
+        </button>
+    </div>
+
+    <!-- Modal del Carrito -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tu Pedido</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <!-- Los items del carrito se cargarán aquí -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cartTotal">$0</span>
+                </div>
+                <button class="checkout-btn" id="checkoutBtn">
+                    Enviar a WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Producto -->
+    <div class="modal" id="productModal">
+        <div class="modal-content modal-product">
+            <button class="close-btn" id="closeProductModal">&times;</button>
+            <div class="product-modal-content" id="productModalContent">
+                <!-- Contenido del producto -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-container">
+                <div class="footer-section">
+                    <h3 class="footer-title">Dirección</h3>
+                    <a href="https://maps.app.goo.gl/qAMVnvXXL6jr1Aoz8" target="_blank" class="footer-address">
+                        <span class="address-pin">📍</span>
+                        <span class="address-text-footer">Cra. 3 # 13-6, Caucasia, Antioquia</span>
+                    </a>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">Horario de Atención</h3>
+                    <div class="footer-schedule">
+                        <p class="schedule-text">Lunes a Sábados</p>
+                        <p class="schedule-time">8:00 AM - 12:00 PM</p>
+                        <p class="schedule-time">2:00 PM - 8:00 PM</p>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3 class="footer-title">Contáctanos</h3>
+                    <div class="footer-social">
+                        <a href="tel:+573217733629" class="footer-social-link phone" title="Llamar">
+                            <img src="image/RedesSociales/llamadas.png" alt="Llamar" class="footer-social-icon">
+                        </a>
+                        <a href="javascript:void(0)" class="footer-social-link facebook" title="Facebook - Próximamente">
+                            <img src="image/RedesSociales/facebook.png" alt="Facebook" class="footer-social-icon">
+                        </a>
+                        <a href="javascript:void(0)" class="footer-social-link instagram" title="Instagram - Próximamente">
+                            <img src="image/RedesSociales/instagram.png" alt="Instagram" class="footer-social-icon">
+                        </a>
+                        <a href="https://wa.me/573217733629" target="_blank" class="footer-social-link whatsapp" title="WhatsApp">
+                            <img src="image/RedesSociales/whatsAap.png" alt="WhatsApp" class="footer-social-icon">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-container">
+                <p class="footer-copyright">© 2026 Camargo Distribuidora de Condimentos. Todos los derechos reservados.</p>
+                <p class="footer-developer">Emil Jiménez Ortiz - Desarrollador Web</p>
+                <a href="https://wa.me/573192364724?text=¡Hola,%20Ing.%20Emil,%20deseo%20mi%20propia%20App%20de%20pedidos!" target="_blank" class="footer-contact-btn">Contáctame</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((registration) => {
+                        console.log('SW registrado exitosamente:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Error al registrar SW:', error);
+                    });
+            });
+        }
+
+        // Detectar iOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        
+        // Botón de instalación
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+        const iosInstructions = document.getElementById('ios-instructions');
+
+        // Verificar si ya está instalada al cargar
+        function checkIfInstalled() {
+            // Verificar si está en modo standalone (instalada)
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('App ya está instalada');
+                installBtn.style.display = 'none';
+                return true;
+            }
+            // Verificar en localStorage
+            if (localStorage.getItem('appInstalled') === 'true') {
+                console.log('App marcada como instalada en localStorage');
+                installBtn.style.display = 'none';
+                return true;
+            }
+            return false;
+        }
+
+        // Verificar al cargar
+        if (checkIfInstalled()) {
+            // Si ya está instalada, no hacer nada más
+        } else {
+            // Escuchar el evento beforeinstallprompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                console.log('beforeinstallprompt disparado');
+                // Verificar nuevamente antes de mostrar
+                if (!checkIfInstalled()) {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    installBtn.style.display = 'block';
+                }
+            });
+
+            // Manejar clic en el botón de instalación
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`Usuario ${outcome === 'accepted' ? 'aceptó' : 'rechazó'} la instalación`);
+                    if (outcome === 'accepted') {
+                        // Guardar en localStorage que fue instalada
+                        localStorage.setItem('appInstalled', 'true');
+                    }
+                    deferredPrompt = null;
+                    installBtn.style.display = 'none';
+                }
+            });
+
+            // Verificar si ya está instalada (evento appinstalled)
+            window.addEventListener('appinstalled', () => {
+                console.log('App instalada - guardando en localStorage');
+                localStorage.setItem('appInstalled', 'true');
+                installBtn.style.display = 'none';
+                deferredPrompt = null;
+            });
+        }
+
+        // Mostrar instrucciones para iOS
+        if (isIOS) {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    if (!window.matchMedia('(display-mode: standalone)').matches) {
+                        iosInstructions.style.display = 'block';
+                    }
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
+
