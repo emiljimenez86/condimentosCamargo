@@ -1,0 +1,26 @@
+{
+  "id": "/admin/",
+  "name": "Camargo Admin",
+  "short_name": "Camargo Admin",
+  "description": "Editar nombre, precio y foto de los productos de Condimentos Camargo",
+  "start_url": "/admin/",
+  "scope": "/admin/",
+  "display": "standalone",
+  "background_color": "#1B5E20",
+  "theme_color": "#1B5E20",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/image/logo/LogoCondimentosCamargo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/image/logo/LogoCondimentosCamargo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

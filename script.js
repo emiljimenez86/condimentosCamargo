@@ -1,219 +1,3 @@
-// Datos de productos
-const products = {
-    tenderos: [
-        {
-            id: 1,
-            name: "Pimienta Negra",
-            price: 12000,
-            unit: "docena",
-            image: "🌶️",
-            category: "tenderos"
-        },
-        {
-            id: 2,
-            name: "Comino",
-            price: 15000,
-            unit: "docena",
-            image: "🌿",
-            category: "tenderos"
-        },
-        {
-            id: 3,
-            name: "Ajo en Polvo",
-            price: 18000,
-            unit: "docena",
-            image: "🧄",
-            category: "tenderos"
-        },
-        {
-            id: 4,
-            name: "Cúrcuma",
-            price: 20000,
-            unit: "docena",
-            image: "🟡",
-            category: "tenderos"
-        },
-        {
-            id: 5,
-            name: "Orégano",
-            price: 14000,
-            unit: "docena",
-            image: "🌱",
-            category: "tenderos"
-        },
-        {
-            id: 6,
-            name: "Pimentón",
-            price: 16000,
-            unit: "docena",
-            image: "🔴",
-            category: "tenderos"
-        },
-        {
-            id: 7,
-            name: "Canela en Polvo",
-            price: 22000,
-            unit: "docena",
-            image: "🟤",
-            category: "tenderos"
-        },
-        {
-            id: 8,
-            name: "Clavo de Olor",
-            price: 25000,
-            unit: "docena",
-            image: "🌰",
-            category: "tenderos"
-        },
-        {
-            id: 9,
-            name: "Nuez Moscada",
-            price: 28000,
-            unit: "docena",
-            image: "🥜",
-            category: "tenderos"
-        },
-        {
-            id: 10,
-            name: "Laurel",
-            price: 13000,
-            unit: "docena",
-            image: "🍃",
-            category: "tenderos"
-        },
-        {
-            id: 11,
-            name: "Tomillo",
-            price: 17000,
-            unit: "docena",
-            image: "🌾",
-            category: "tenderos"
-        },
-        {
-            id: 12,
-            name: "Albahaca",
-            price: 15000,
-            unit: "docena",
-            image: "🌿",
-            category: "tenderos"
-        }
-    ],
-    restaurantes: [
-        {
-            id: 101,
-            name: "Pimienta Negra",
-            price: 8500,
-            unit: "libra",
-            image: "🌶️",
-            category: "restaurantes"
-        },
-        {
-            id: 102,
-            name: "Comino",
-            price: 10000,
-            unit: "libra",
-            image: "🌿",
-            category: "restaurantes"
-        },
-        {
-            id: 103,
-            name: "Ajo en Polvo",
-            price: 12000,
-            unit: "libra",
-            image: "🧄",
-            category: "restaurantes"
-        },
-        {
-            id: 104,
-            name: "Cúrcuma",
-            price: 13500,
-            unit: "libra",
-            image: "🟡",
-            category: "restaurantes"
-        },
-        {
-            id: 105,
-            name: "Orégano",
-            price: 9500,
-            unit: "libra",
-            image: "🌱",
-            category: "restaurantes"
-        },
-        {
-            id: 106,
-            name: "Pimentón",
-            price: 11000,
-            unit: "libra",
-            image: "🔴",
-            category: "restaurantes"
-        },
-        {
-            id: 107,
-            name: "Canela en Polvo",
-            price: 15000,
-            unit: "libra",
-            image: "🟤",
-            category: "restaurantes"
-        },
-        {
-            id: 108,
-            name: "Clavo de Olor",
-            price: 17000,
-            unit: "libra",
-            image: "🌰",
-            category: "restaurantes"
-        },
-        {
-            id: 109,
-            name: "Nuez Moscada",
-            price: 19000,
-            unit: "libra",
-            image: "🥜",
-            category: "restaurantes"
-        },
-        {
-            id: 110,
-            name: "Laurel",
-            price: 9000,
-            unit: "libra",
-            image: "🍃",
-            category: "restaurantes"
-        },
-        {
-            id: 111,
-            name: "Tomillo",
-            price: 11500,
-            unit: "libra",
-            image: "🌾",
-            category: "restaurantes"
-        },
-        {
-            id: 112,
-            name: "Albahaca",
-            price: 10000,
-            unit: "libra",
-            image: "🌿",
-            category: "restaurantes"
-        },
-        {
-            id: 113,
-            name: "Cilantro",
-            price: 8800,
-            unit: "libra",
-            image: "🌿",
-            category: "restaurantes"
-        },
-        {
-            id: 114,
-            name: "Perejil",
-            price: 9200,
-            unit: "libra",
-            image: "🌿",
-            category: "restaurantes"
-        }
-    ]
-};
-
 // Estado de la aplicación
 let currentCategory = null;
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -241,8 +25,8 @@ const cartFloat = document.getElementById('cartFloat');
 document.addEventListener('DOMContentLoaded', () => {
     updateCartUI();
     setupEventListeners();
-    // Mostrar vista de categorías inicialmente
     showCategoriesView();
+    initFirebase();
 });
 
 // Event Listeners
@@ -354,11 +138,11 @@ function createProductCard(product) {
     const quantity = getCartQuantity(product.id);
     
     card.innerHTML = `
-        <div class="product-image">${product.image}</div>
+        <div class="product-image">${productImageMarkup(product.image, product.name)}</div>
         <div class="product-info">
-            <div class="product-name">${product.name}</div>
+            <div class="product-name">${escapeHtml(product.name)}</div>
             <div class="product-price">$${formatPrice(product.price)}</div>
-            <div class="product-unit">Por ${product.unit}</div>
+            <div class="product-unit">Por ${escapeHtml(product.unit)}</div>
             <div class="product-actions">
                 ${quantity > 0 ? `
                     <div class="quantity-control">
@@ -485,9 +269,9 @@ function updateCartItems() {
     checkoutBtn.disabled = false;
     cartItems.innerHTML = cart.map(item => `
         <div class="cart-item">
-            <div class="cart-item-image">${item.image}</div>
+            <div class="cart-item-image">${productImageMarkup(item.image, item.name)}</div>
             <div class="cart-item-info">
-                <div class="cart-item-name">${item.name}</div>
+                <div class="cart-item-name">${escapeHtml(item.name)}</div>
                 <div class="cart-item-details">${item.quantity} ${item.unit}${item.quantity > 1 ? 's' : ''}</div>
                 <div class="cart-item-price">$${formatPrice(item.price * item.quantity)}</div>
             </div>
@@ -581,3 +365,79 @@ function formatPrice(price) {
     return new Intl.NumberFormat('es-CO').format(price);
 }
 
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function isHttpUrl(value) {
+    return typeof value === 'string' && /^https:\/\//i.test(value);
+}
+
+function productImageMarkup(image, alt) {
+    if (isHttpUrl(image)) {
+        return `<img src="${escapeHtml(image)}" alt="${escapeHtml(alt || '')}" referrerpolicy="no-referrer" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'🌶️'}))">`;
+    }
+    return escapeHtml(image || '🌶️');
+}
+
+function applyRemoteProduct(data) {
+    if (!data || (data.category !== 'tenderos' && data.category !== 'restaurantes')) return false;
+    const id = Number(data.id);
+    const list = products[data.category];
+    const index = list.findIndex((product) => product.id === id);
+    if (index === -1) return false;
+    const price = Number(data.price);
+    const current = list[index];
+    list[index] = {
+        ...current,
+        name: typeof data.name === 'string' && data.name.trim() ? data.name.trim() : current.name,
+        price: Number.isFinite(price) && price >= 0 ? price : current.price,
+        image: typeof data.image === 'string' && data.image.trim() ? data.image.trim() : current.image,
+        imageLink: typeof data.imageLink === 'string' ? data.imageLink : (current.imageLink || '')
+    };
+    return true;
+}
+
+function syncCartWithCatalog() {
+    let changed = false;
+    cart = cart.map((item) => {
+        const source = products[item.category]?.find((product) => product.id === item.id);
+        if (!source) return item;
+        if (source.name === item.name && source.price === item.price && source.image === item.image) return item;
+        changed = true;
+        return { ...item, name: source.name, price: source.price, image: source.image, unit: source.unit };
+    });
+    if (changed) saveCart();
+}
+
+function refreshVisibleProducts() {
+    if (currentCategory) loadProducts();
+    updateCartUI();
+}
+
+function catalogFirebaseReady() {
+    if (typeof firebase === 'undefined' || typeof firebaseConfig === 'undefined') return false;
+    const apiKey = firebaseConfig.apiKey;
+    const projectId = firebaseConfig.projectId;
+    if (!apiKey || !projectId) return false;
+    return !String(apiKey).startsWith('TU_') && !String(projectId).startsWith('TU_');
+}
+
+function initFirebase() {
+    if (!catalogFirebaseReady()) return;
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    firebase.firestore().collection('products').onSnapshot((snapshot) => {
+        snapshot.forEach((doc) => applyRemoteProduct(doc.data()));
+        syncCartWithCatalog();
+        refreshVisibleProducts();
+    }, (error) => {
+        console.error('No se pudo leer el catálogo:', error);
+    });
+}

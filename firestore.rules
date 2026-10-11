@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && request.resource.data.keys().hasOnly(['id', 'name', 'price', 'unit', 'image', 'imageLink', 'category'])
+        && request.resource.data.id is number
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() < 120
+        && request.resource.data.price is number
+        && request.resource.data.price >= 0
+        && request.resource.data.price < 100000000
+        && request.resource.data.unit is string
+        && request.resource.data.unit.size() < 40
+        && request.resource.data.category in ['tenderos', 'restaurantes']
+        && request.resource.data.image is string
+        && request.resource.data.image.size() < 2000
+        && (
+          request.resource.data.image.matches('https://.+')
+          || request.resource.data.image.size() < 16
+        )
+        && request.resource.data.imageLink is string
+        && request.resource.data.imageLink.size() < 2000;
+      allow delete: if false;
+    }
+  }
+}

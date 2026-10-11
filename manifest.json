@@ -1,9 +1,10 @@
 {
+  "id": "/",
   "name": "Camargo - Distribuidora de Condimentos",
   "short_name": "Condimentos Camargo",
   "description": "Catálogo de productos y pedidos de condimentos",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#FF6B35",
   "theme_color": "#FF6B35",

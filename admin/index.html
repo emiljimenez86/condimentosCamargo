@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#1B5E20">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Camargo Admin">
+    <title>Camargo Admin</title>
+    <link rel="manifest" href="./manifest.json">
+    <link rel="icon" type="image/png" href="../image/logo/LogoCondimentosCamargo.png">
+    <link rel="apple-touch-icon" href="../image/logo/LogoCondimentosCamargo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./admin.css">
+</head>
+<body>
+    <header class="topbar">
+        <img src="../image/logo/LogoCondimentosCamargo.png" alt="Camargo" class="brand-logo">
+        <div class="brand-text">
+            <p class="brand-kicker">App aparte de pedidos</p>
+            <h1>Camargo Admin</h1>
+        </div>
+        <div class="top-actions">
+            <button type="button" id="installBtn" class="ghost-btn" hidden>Instalar aplicación</button>
+            <button type="button" id="logoutBtn" class="ghost-btn" hidden>Salir</button>
+        </div>
+    </header>
+
+    <main class="wrap">
+        <section id="loginView" class="card">
+            <h2>Entrar</h2>
+            <p class="help">Entra con un usuario creado en Firebase Authentication. Puedes tener varios. Desde aquí cambias el nombre, el precio y la foto.</p>
+            <form id="loginForm" class="form">
+                <label for="adminEmail">Correo</label>
+                <input id="adminEmail" type="email" autocomplete="username" required placeholder="correo del administrador">
+                <label for="adminPassword">Contraseña</label>
+                <input id="adminPassword" type="password" autocomplete="current-password" required placeholder="contraseña">
+                <p id="loginMessage" class="message" role="status"></p>
+                <button type="submit" class="primary-btn" id="loginBtn">Entrar</button>
+            </form>
+            <div id="iosHelp" class="ios-help" hidden>
+                <p><strong>En iPhone:</strong> toca Compartir y luego «Agregar a inicio». En Windows o Android usa el botón Instalar aplicación.</p>
+            </div>
+        </section>
+
+        <section id="editorView" hidden>
+            <p id="sessionLine" class="session-line"></p>
+            <p class="help">Comparte cada foto de Drive como «Cualquier persona con el enlace». Al guardar, el cambio aparece en la app de pedidos.</p>
+            <div class="catalog-grid">
+                <section>
+                    <h2>Tenderos <span>por docena</span></h2>
+                    <div id="tenderosList" class="product-list"></div>
+                </section>
+                <section>
+                    <h2>Restaurantes <span>por libra</span></h2>
+                    <div id="restaurantesList" class="product-list"></div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal" id="editModal">
+        <form class="card edit-card" id="editForm">
+            <div class="edit-head">
+                <h2>Editar producto</h2>
+                <button type="button" class="close-btn" id="closeEdit" aria-label="Cerrar">&times;</button>
+            </div>
+            <label for="editName">Nombre</label>
+            <input id="editName" type="text" maxlength="80" required autocomplete="off">
+            <label for="editPrice">Precio (COP)</label>
+            <input id="editPrice" type="number" min="0" step="1" required inputmode="numeric">
+            <label for="editImage">Enlace de la imagen en Google Drive</label>
+            <input id="editImage" type="text" inputmode="url" autocomplete="off" placeholder="https://drive.google.com/file/d/...">
+            <p class="help">Si lo dejas vacío, se conserva la imagen actual.</p>
+            <div id="editPreview" class="preview"></div>
+            <p id="editMessage" class="message" role="status"></p>
+            <button type="submit" class="primary-btn" id="saveBtn">Guardar cambios</button>
+        </form>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="../firebase-config.js"></script>
+    <script src="../products.js"></script>
+    <script src="./admin.js"></script>
+</body>
+</html>
