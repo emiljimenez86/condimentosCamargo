@@ -16,6 +16,7 @@ const editImage = document.getElementById('editImage');
 document.addEventListener('DOMContentLoaded', () => {
     setupInstall();
     loginForm.addEventListener('submit', signIn);
+    document.getElementById('togglePassword').addEventListener('click', togglePassword);
     logoutBtn.addEventListener('click', () => auth && auth.signOut());
     editForm.addEventListener('submit', saveProduct);
     document.getElementById('closeEdit').addEventListener('click', closeEdit);
@@ -178,6 +179,17 @@ function showLogin() {
     editorView.hidden = true;
     logoutBtn.hidden = true;
     closeEdit();
+}
+
+function togglePassword() {
+    const input = document.getElementById('adminPassword');
+    const button = document.getElementById('togglePassword');
+    const willShow = input.type === 'password';
+    input.type = willShow ? 'text' : 'password';
+    button.setAttribute('aria-pressed', String(willShow));
+    button.setAttribute('aria-label', willShow ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    button.querySelector('.eye-open').hidden = willShow;
+    button.querySelector('.eye-closed').hidden = !willShow;
 }
 
 function authErrorMessage(error) {
