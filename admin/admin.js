@@ -8,7 +8,6 @@ const editorView = document.getElementById('editorView');
 const loginForm = document.getElementById('loginForm');
 const loginMessage = document.getElementById('loginMessage');
 const logoutBtn = document.getElementById('logoutBtn');
-const installBtn = document.getElementById('installBtn');
 const editModal = document.getElementById('editModal');
 const editForm = document.getElementById('editForm');
 const editImage = document.getElementById('editImage');
@@ -24,33 +23,80 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target === editModal) closeEdit();
     });
     editImage.addEventListener('input', () => updatePreview(editImage.value));
+    document.getElementById('createProductBtn').addEventListener('click', openCreate);
+    document.getElementById('editCategory').addEventListener('change', updateCategoryHint);
     document.getElementById('tenderosList').addEventListener('click', onEditClick);
     document.getElementById('restaurantesList').addEventListener('click', onEditClick);
     initFirebase();
 });
 
 function setupInstall() {
-    const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    const installBtn = document.getElementById('installBtn');
+    const iosInstructions = document.getElementById('ios-instructions');
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (isIOS && !standalone) document.getElementById('iosHelp').hidden = false;
+    const installedKey = 'adminAppInstalled';
 
-    window.addEventListener('beforeinstallprompt', (event) => {
-        if (standalone) return;
-        event.preventDefault();
-        deferredPrompt = event;
-        installBtn.hidden = false;
+    function isStandalone() {
+        return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    function alreadyInstalled() {
+        if (isStandalone()) {
+            installBtn.style.display = 'none';
+            return true;
+        }
+        if (localStorage.getItem(installedKey) === 'true') {
+            installBtn.style.display = 'none';
+            return true;
+        }
+        return false;
+    }
+
+    document.getElementById('closeIosInstructions').addEventListener('click', () => {
+        iosInstructions.style.display = 'none';
     });
 
-    installBtn.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        installBtn.hidden = true;
-    });
+    if (!alreadyInstalled()) {
+        window.addEventListener('beforeinstallprompt', (event) => {
+            if (alreadyInstalled()) return;
+            event.preventDefault();
+            deferredPrompt = event;
+            installBtn.style.display = 'block';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') localStorage.setItem(installedKey, 'true');
+            deferredPrompt = null;
+            installBtn.style.display = 'none';
+        });
+
+        window.addEventListener('appinstalled', () => {
+            localStorage.setItem(installedKey, 'true');
+            installBtn.style.display = 'none';
+            deferredPrompt = null;
+        });
+    }
+
+    if (isIOS) {
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (!isStandalone()) iosInstructions.style.display = 'flex';
+            }, 2000);
+        });
+    }
 
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').catch((error) => {
+        navigator.serviceWorker.register('./sw.js', { scope: './' }).then((registration) => {
+            const controller = navigator.serviceWorker.controller;
+            const adminControlsPage = controller && controller.scriptURL.includes('/admin/sw.js');
+            if (registration.active && controller && !adminControlsPage && !sessionStorage.getItem('adminSwReload')) {
+                sessionStorage.setItem('adminSwReload', '1');
+                window.location.reload();
+            }
+        }).catch((error) => {
             console.log('No se pudo registrar la app admin:', error);
         });
     }
@@ -133,19 +179,27 @@ function resolveImageUrl(input) {
 }
 
 function applyRemoteProduct(data) {
-    if (!data || (data.category !== 'tenderos' && data.category !== 'restaurantes')) return;
+    if (!data || (data.category !== 'tenderos' && data.category !== 'restaurantes')) return false;
+    const id = Number(data.id);
     const list = products[data.category];
-    const index = list.findIndex((product) => product.id === Number(data.id));
-    if (index === -1) return;
+    if (!list || !Number.isFinite(id)) return false;
     const price = Number(data.price);
-    const current = list[index];
-    list[index] = {
-        ...current,
-        name: typeof data.name === 'string' && data.name.trim() ? data.name.trim() : current.name,
-        price: Number.isFinite(price) && price >= 0 ? price : current.price,
-        image: typeof data.image === 'string' && data.image.trim() ? data.image.trim() : current.image,
-        imageLink: typeof data.imageLink === 'string' ? data.imageLink : (current.imageLink || '')
+    const name = typeof data.name === 'string' ? data.name.trim() : '';
+    if (!name || !Number.isFinite(price) || price < 0) return false;
+    const index = list.findIndex((product) => product.id === id);
+    const fallbackUnit = data.category === 'tenderos' ? 'docena' : 'libra';
+    const next = {
+        id,
+        name,
+        price,
+        unit: typeof data.unit === 'string' && data.unit.trim() ? data.unit.trim() : fallbackUnit,
+        image: typeof data.image === 'string' && data.image.trim() ? data.image.trim() : '🌶️',
+        imageLink: typeof data.imageLink === 'string' ? data.imageLink : '',
+        category: data.category
     };
+    if (index === -1) list.push(next);
+    else list[index] = { ...list[index], ...next };
+    return true;
 }
 
 function renderProducts() {
@@ -247,10 +301,52 @@ function updatePreview(value) {
     preview.innerHTML = productImageMarkup(resolved, 'Vista previa');
 }
 
+function updateCategoryHint() {
+    const category = document.getElementById('editCategory').value;
+    document.getElementById('categoryHint').textContent = category === 'restaurantes'
+        ? 'Se vende por libra.'
+        : 'Se vende por docena.';
+}
+
+function setEditorMode(creating) {
+    document.getElementById('editTitle').textContent = creating ? 'Nuevo producto' : 'Editar producto';
+    document.getElementById('saveBtn').textContent = creating ? 'Crear producto' : 'Guardar cambios';
+    document.getElementById('categoryField').hidden = !creating;
+    document.getElementById('editImageHelp').textContent = creating
+        ? 'Opcional. Si lo dejas vacío, el producto se muestra con un ícono.'
+        : 'Si lo dejas vacío, se conserva la imagen actual.';
+}
+
+function nextProductId() {
+    const used = new Set([...products.tenderos, ...products.restaurantes].map((product) => Number(product.id)));
+    let id = Date.now();
+    while (used.has(id)) id += 1;
+    return id;
+}
+
+function removeProduct(id, category) {
+    if (!products[category]) return;
+    products[category] = products[category].filter((product) => product.id !== id);
+}
+
+function openCreate() {
+    editingProductId = null;
+    setEditorMode(true);
+    document.getElementById('editCategory').value = 'tenderos';
+    updateCategoryHint();
+    document.getElementById('editName').value = '';
+    document.getElementById('editPrice').value = '';
+    editImage.value = '';
+    setEditMessage('');
+    updatePreview('');
+    editModal.classList.add('active');
+}
+
 function openEdit(productId) {
     const product = findProduct(productId);
     if (!product) return;
     editingProductId = product.id;
+    setEditorMode(false);
     document.getElementById('editName').value = product.name;
     document.getElementById('editPrice').value = product.price;
     const link = product.imageLink || (isHttpUrl(product.image) ? product.image : '');
@@ -270,12 +366,14 @@ async function saveProduct(event) {
         setEditMessage('Inicia sesión como administrador para guardar.', 'error');
         return;
     }
-    const product = findProduct(editingProductId);
-    if (!product) return;
+    const creating = editingProductId == null;
+    const existing = creating ? null : findProduct(editingProductId);
+    if (!creating && !existing) return;
 
     const name = document.getElementById('editName').value.replace(/\s+/g, ' ').trim();
     const price = Number(document.getElementById('editPrice').value);
     const imageInput = editImage.value.trim();
+    const category = creating ? document.getElementById('editCategory').value : existing.category;
     if (!name) {
         setEditMessage('Escribe el nombre del producto.', 'error');
         return;
@@ -284,9 +382,13 @@ async function saveProduct(event) {
         setEditMessage('Escribe un precio válido.', 'error');
         return;
     }
+    if (category !== 'tenderos' && category !== 'restaurantes') {
+        setEditMessage('Elige Tenderos o Restaurantes.', 'error');
+        return;
+    }
 
-    let image = product.image;
-    let imageLink = product.imageLink || '';
+    let image = creating ? '🌶️' : existing.image;
+    let imageLink = creating ? '' : (existing.imageLink || '');
     if (imageInput) {
         const resolved = resolveImageUrl(imageInput);
         if (!resolved) {
@@ -298,15 +400,14 @@ async function saveProduct(event) {
     }
 
     const payload = {
-        id: product.id,
+        id: creating ? nextProductId() : existing.id,
         name,
         price: Math.round(price),
-        unit: product.unit,
+        unit: category === 'tenderos' ? 'docena' : 'libra',
         image,
         imageLink,
-        category: product.category
+        category
     };
-    const previous = { ...product };
     const button = document.getElementById('saveBtn');
     button.disabled = true;
     button.textContent = 'Guardando...';
@@ -314,11 +415,12 @@ async function saveProduct(event) {
     renderProducts();
 
     try {
-        await db.collection('products').doc(String(product.id)).set(payload);
-        setEditMessage('Guardado. Ya se ve en la app de pedidos.', 'ok');
+        await db.collection('products').doc(String(payload.id)).set(payload);
+        setEditMessage(creating ? 'Producto creado. Ya se ve en la app de pedidos.' : 'Guardado. Ya se ve en la app de pedidos.', 'ok');
         closeEdit();
     } catch (error) {
-        applyRemoteProduct(previous);
+        if (creating) removeProduct(payload.id, payload.category);
+        else applyRemoteProduct(existing);
         renderProducts();
         const denied = error && (error.code === 'permission-denied' || error.code === 'unauthenticated');
         setEditMessage(denied
@@ -326,7 +428,7 @@ async function saveProduct(event) {
             : 'No se pudo guardar. Revisa tu conexión.', 'error');
     } finally {
         button.disabled = false;
-        button.textContent = 'Guardar cambios';
+        button.textContent = creating ? 'Crear producto' : 'Guardar cambios';
     }
 }
 

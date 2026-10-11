@@ -19,6 +19,18 @@
     <link rel="stylesheet" href="./admin.css">
 </head>
 <body>
+    <button type="button" id="installBtn" style="display: none;">Instalar App</button>
+
+    <div id="ios-instructions" class="ios-instructions" style="display: none;">
+        <div class="ios-instructions-content">
+            <h3>📱 Para instalar esta app en iPhone:</h3>
+            <p>1. Toca <strong>Compartir</strong> <span class="share-icon">📤</span></p>
+            <p>2. Selecciona <strong>"Agregar a inicio"</strong></p>
+            <p>3. Toca <strong>"Agregar"</strong>. Queda como Camargo Admin, aparte de la app de pedidos.</p>
+            <button type="button" id="closeIosInstructions" class="close-instructions-btn">Cerrar</button>
+        </div>
+    </div>
+
     <header class="topbar">
         <img src="../image/logo/LogoCondimentosCamargo.png" alt="Camargo" class="brand-logo">
         <div class="brand-text">
@@ -26,7 +38,6 @@
             <h1>Camargo Admin</h1>
         </div>
         <div class="top-actions">
-            <button type="button" id="installBtn" class="ghost-btn" hidden>Instalar aplicación</button>
             <button type="button" id="logoutBtn" class="ghost-btn" hidden>Salir</button>
         </div>
     </header>
@@ -49,14 +60,12 @@
                 <p id="loginMessage" class="message" role="status"></p>
                 <button type="submit" class="primary-btn" id="loginBtn">Entrar</button>
             </form>
-            <div id="iosHelp" class="ios-help" hidden>
-                <p><strong>En iPhone:</strong> toca Compartir y luego «Agregar a inicio». En Windows o Android usa el botón Instalar aplicación.</p>
-            </div>
         </section>
 
         <section id="editorView" hidden>
             <p id="sessionLine" class="session-line"></p>
-            <p class="help">Comparte cada foto de Drive como «Cualquier persona con el enlace». Al guardar, el cambio aparece en la app de pedidos.</p>
+            <p class="help">Crea productos nuevos y elige si van a Tenderos o a Restaurantes. La foto puede ser un enlace de Google Drive compartido como «Cualquier persona con el enlace».</p>
+            <button type="button" id="createProductBtn" class="primary-btn create-btn">Nuevo producto</button>
             <div class="catalog-grid">
                 <section>
                     <h2>Tenderos <span>por docena</span></h2>
@@ -73,8 +82,16 @@
     <div class="modal" id="editModal">
         <form class="card edit-card" id="editForm">
             <div class="edit-head">
-                <h2>Editar producto</h2>
+                <h2 id="editTitle">Editar producto</h2>
                 <button type="button" class="close-btn" id="closeEdit" aria-label="Cerrar">&times;</button>
+            </div>
+            <div id="categoryField">
+                <label for="editCategory">Categoría</label>
+                <select id="editCategory">
+                    <option value="tenderos">Tenderos</option>
+                    <option value="restaurantes">Restaurantes</option>
+                </select>
+                <p id="categoryHint" class="help"></p>
             </div>
             <label for="editName">Nombre</label>
             <input id="editName" type="text" maxlength="80" required autocomplete="off">
@@ -82,7 +99,7 @@
             <input id="editPrice" type="number" min="0" step="1" required inputmode="numeric">
             <label for="editImage">Enlace de la imagen en Google Drive</label>
             <input id="editImage" type="text" inputmode="url" autocomplete="off" placeholder="https://drive.google.com/file/d/...">
-            <p class="help">Si lo dejas vacío, se conserva la imagen actual.</p>
+            <p class="help" id="editImageHelp">Si lo dejas vacío, se conserva la imagen actual.</p>
             <div id="editPreview" class="preview"></div>
             <p id="editMessage" class="message" role="status"></p>
             <button type="submit" class="primary-btn" id="saveBtn">Guardar cambios</button>

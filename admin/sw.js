@@ -1,4 +1,4 @@
-const CACHE_NAME = 'camargo-admin-v1';
+const CACHE_NAME = 'camargo-admin-v2';
 const urlsToCache = [
   './',
   './index.html',
@@ -13,7 +13,9 @@ const urlsToCache = [
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then((cache) => Promise.all(
+      urlsToCache.map((url) => cache.add(url).catch(() => null))
+    ))
   );
 });
 

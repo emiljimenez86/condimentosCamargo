@@ -389,17 +389,23 @@ function applyRemoteProduct(data) {
     if (!data || (data.category !== 'tenderos' && data.category !== 'restaurantes')) return false;
     const id = Number(data.id);
     const list = products[data.category];
-    const index = list.findIndex((product) => product.id === id);
-    if (index === -1) return false;
+    if (!list || !Number.isFinite(id)) return false;
     const price = Number(data.price);
-    const current = list[index];
-    list[index] = {
-        ...current,
-        name: typeof data.name === 'string' && data.name.trim() ? data.name.trim() : current.name,
-        price: Number.isFinite(price) && price >= 0 ? price : current.price,
-        image: typeof data.image === 'string' && data.image.trim() ? data.image.trim() : current.image,
-        imageLink: typeof data.imageLink === 'string' ? data.imageLink : (current.imageLink || '')
+    const name = typeof data.name === 'string' ? data.name.trim() : '';
+    if (!name || !Number.isFinite(price) || price < 0) return false;
+    const index = list.findIndex((product) => product.id === id);
+    const fallbackUnit = data.category === 'tenderos' ? 'docena' : 'libra';
+    const next = {
+        id,
+        name,
+        price,
+        unit: typeof data.unit === 'string' && data.unit.trim() ? data.unit.trim() : fallbackUnit,
+        image: typeof data.image === 'string' && data.image.trim() ? data.image.trim() : '🌶️',
+        imageLink: typeof data.imageLink === 'string' ? data.imageLink : '',
+        category: data.category
     };
+    if (index === -1) list.push(next);
+    else list[index] = { ...list[index], ...next };
     return true;
 }
 
